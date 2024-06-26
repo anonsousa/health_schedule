@@ -23,11 +23,10 @@ public class PacienteEntity implements Serializable {
     @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "endereco_id", referencedColumnName = "idEndereco")
+    @Embedded
     private Endereco endereco;
 
-    @Column(unique = true, nullable = false, length = 120)
+    @Column(nullable = false, length = 120)
     private String email;
 
     private String telefone;

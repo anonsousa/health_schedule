@@ -52,7 +52,7 @@ public class MedicoService {
     @Transactional
     public MedicoReturnDto updateMedico(Long id, MedicoAddDto medicoDto){
         var medico = medicoRepository.findById(id);
-        if (medico.isPresent()){
+        if (medico.isPresent() || medico.get().isAtivo() == true){
             MedicoEntity medicoEntity = medico.get();
             BeanUtils.copyProperties(medicoDto, medicoEntity);
 

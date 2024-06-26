@@ -39,7 +39,7 @@ public class MedicoController {
     }
 
     @PutMapping("/medico/{id}")
-    public ResponseEntity<MedicoReturnDto> updateMedico(@PathVariable Long id, MedicoAddDto medicoDto){
+    public ResponseEntity<MedicoReturnDto> updateMedico(@PathVariable Long id, @RequestBody @Valid MedicoAddDto medicoDto){
         return ResponseEntity.status(HttpStatus.OK).body(medicoService.updateMedico(id, medicoDto));
     }
 

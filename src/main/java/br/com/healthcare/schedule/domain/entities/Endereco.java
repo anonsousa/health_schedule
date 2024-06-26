@@ -4,14 +4,11 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 
-@Entity
-@Table(name = "TB_ENDERECO")
+@Embeddable
 public class Endereco implements Serializable {
     public static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idEndereco;
+
     private String logradouro;
     private String numero;
     private String complemento;
@@ -20,14 +17,6 @@ public class Endereco implements Serializable {
     private String estado;
     private String cep;
 
-
-    public Long getIdEndereco() {
-        return idEndereco;
-    }
-
-    public void setIdEndereco(Long idEndereco) {
-        this.idEndereco = idEndereco;
-    }
 
     public String getLogradouro() {
         return logradouro;
