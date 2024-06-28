@@ -1,5 +1,7 @@
 package br.com.healthcare.schedule.domain.entities;
 
+import br.com.healthcare.schedule.domain.enums.EnumStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -23,11 +25,13 @@ public class ConsultaEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "idMedico")
+    @JsonIgnore
     private MedicoEntity medico;
 
 
     @ManyToOne
     @JoinColumn(name = "idPaciente")
+    @JsonIgnore
     private PacienteEntity paciente;
 
     @Column(name = "data_consulta")

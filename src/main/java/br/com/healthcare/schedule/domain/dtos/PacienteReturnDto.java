@@ -1,6 +1,6 @@
 package br.com.healthcare.schedule.domain.dtos;
 
-import br.com.healthcare.schedule.domain.entities.EnumSexo;
+import br.com.healthcare.schedule.domain.enums.EnumSexo;
 import br.com.healthcare.schedule.domain.entities.PacienteEntity;
 
 import java.time.LocalDate;

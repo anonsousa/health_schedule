@@ -2,7 +2,7 @@ package br.com.healthcare.schedule.domain.service;
 
 import br.com.healthcare.schedule.domain.dtos.MedicoAddDto;
 import br.com.healthcare.schedule.domain.dtos.MedicoReturnDto;
-import br.com.healthcare.schedule.domain.entities.EnumEspecialidade;
+import br.com.healthcare.schedule.domain.enums.EnumEspecialidade;
 import br.com.healthcare.schedule.domain.entities.MedicoEntity;
 import br.com.healthcare.schedule.domain.repositories.MedicoRepository;
 import br.com.healthcare.schedule.infra.exceptions.NotFoundException;

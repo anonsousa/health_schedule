@@ -2,7 +2,7 @@ package br.com.healthcare.schedule.controllers;
 
 import br.com.healthcare.schedule.domain.dtos.MedicoAddDto;
 import br.com.healthcare.schedule.domain.dtos.MedicoReturnDto;
-import br.com.healthcare.schedule.domain.entities.EnumEspecialidade;
+import br.com.healthcare.schedule.domain.enums.EnumEspecialidade;
 import br.com.healthcare.schedule.domain.service.MedicoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

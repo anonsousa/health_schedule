@@ -1,6 +1,6 @@
 package br.com.healthcare.schedule.domain.dtos;
 
-import br.com.healthcare.schedule.domain.entities.EnumEspecialidade;
+import br.com.healthcare.schedule.domain.enums.EnumEspecialidade;
 import jakarta.validation.constraints.*;
 
 public record MedicoAddDto(

@@ -6,6 +6,7 @@ import br.com.healthcare.schedule.domain.entities.Endereco;
 import br.com.healthcare.schedule.domain.entities.PacienteEntity;
 import br.com.healthcare.schedule.domain.repositories.PacienteRepository;
 import br.com.healthcare.schedule.infra.exceptions.NotFoundException;
+import br.com.healthcare.schedule.infra.notification.MailSenderService;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class PacienteService {
         BeanUtils.copyProperties(pacienteAddDto.endereco(), endereco);
 
         paciente.setEndereco(endereco);
+        pacienteRepository.save(paciente);
 
         try {
             mailSender.sendWelcomeEmail(paciente.getEmail(), paciente.getNome());
@@ -38,7 +40,7 @@ public class PacienteService {
             throw new RuntimeException("Error" + e.getMessage(), e);
         }
 
-        return new PacienteReturnDto(pacienteRepository.save(paciente));
+        return new PacienteReturnDto(paciente);
     }
 
     @Transactional(readOnly = true)
@@ -55,5 +57,35 @@ public class PacienteService {
     public Page<PacienteReturnDto> findAllPacientes(Pageable pageable){
         Page<PacienteEntity> pacienteEntities = pacienteRepository.findAll(pageable);
         return pacienteEntities.map(PacienteReturnDto::new);
+    }
+
+    @Transactional
+    public PacienteReturnDto updatePaciente(Long id, PacienteAddDto pacienteDto){
+        var pacienteOp = pacienteRepository.findById(id);
+
+        if (pacienteOp.isPresent() || pacienteDto.cpf() == pacienteOp.get().getCpf()){
+            PacienteEntity paciente = pacienteOp.get();
+            BeanUtils.copyProperties(pacienteDto, paciente, "endereco");
+
+            var endereco = new Endereco();
+            BeanUtils.copyProperties(pacienteDto.endereco(), endereco);
+
+            paciente.setEndereco(endereco);
+            pacienteRepository.save(paciente);
+
+            return new PacienteReturnDto(paciente);
+        } else {
+            throw new NotFoundException("Paciente nao encontrado!");
+        }
+    }
+
+    @Transactional
+    public void deletePacienteById(Long id){
+        var pacienteOp = pacienteRepository.findById(id);
+        if (pacienteOp.isPresent()){
+            pacienteRepository.deleteById(id);
+        } else {
+            throw new NotFoundException("Paciente nao encontrado!");
+        }
     }
 }

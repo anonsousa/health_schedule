@@ -1,5 +1,6 @@
 package br.com.healthcare.schedule.domain.entities;
 
+import br.com.healthcare.schedule.domain.enums.EnumSexo;
 import jakarta.persistence.*;
 
 import java.io.Serializable;

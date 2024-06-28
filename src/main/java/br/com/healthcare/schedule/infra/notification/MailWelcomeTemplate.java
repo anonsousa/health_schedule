@@ -1,4 +1,4 @@
-package br.com.healthcare.schedule.domain.service;
+package br.com.healthcare.schedule.infra.notification;
 
 import org.springframework.stereotype.Component;
 

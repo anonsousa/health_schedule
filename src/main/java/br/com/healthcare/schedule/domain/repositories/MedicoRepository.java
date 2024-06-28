@@ -1,6 +1,6 @@
 package br.com.healthcare.schedule.domain.repositories;
 
-import br.com.healthcare.schedule.domain.entities.EnumEspecialidade;
+import br.com.healthcare.schedule.domain.enums.EnumEspecialidade;
 import br.com.healthcare.schedule.domain.entities.MedicoEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

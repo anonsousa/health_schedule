@@ -1,5 +1,6 @@
 package br.com.healthcare.schedule.domain.entities;
 
+import br.com.healthcare.schedule.domain.enums.EnumEspecialidade;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
