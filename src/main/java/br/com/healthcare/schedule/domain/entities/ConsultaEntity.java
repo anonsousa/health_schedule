@@ -1,5 +1,6 @@
 package br.com.healthcare.schedule.domain.entities;
 
+import br.com.healthcare.schedule.domain.enums.EnumEspecialidade;
 import br.com.healthcare.schedule.domain.enums.EnumStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -28,14 +29,19 @@ public class ConsultaEntity implements Serializable {
     @JsonIgnore
     private MedicoEntity medico;
 
-
     @ManyToOne
     @JoinColumn(name = "idPaciente")
     @JsonIgnore
     private PacienteEntity paciente;
 
-    @Column(name = "data_consulta")
-    private LocalDateTime dataConsulta;
+    @Enumerated(EnumType.STRING)
+    private EnumEspecialidade especialidade;
+
+    @Column(name = "data_inicio_consulta")
+    private LocalDateTime dataInicioConsulta;
+
+    @Column(name = "data_fim_consulta")
+    private LocalDateTime dataFimConsulta;
 
     @Enumerated(EnumType.STRING)
     private EnumStatus status;
@@ -65,12 +71,29 @@ public class ConsultaEntity implements Serializable {
         this.paciente = paciente;
     }
 
-    public LocalDateTime getDataConsulta() {
-        return dataConsulta;
+    public LocalDateTime getDataInicioConsulta() {
+        return dataInicioConsulta;
     }
 
-    public void setDataConsulta(LocalDateTime dataConsulta) {
-        this.dataConsulta = dataConsulta;
+    public void setDataInicioConsulta(LocalDateTime dataInicioConsulta) {
+        this.dataInicioConsulta = dataInicioConsulta;
+    }
+
+    public LocalDateTime getDataFimConsulta() {
+        return dataFimConsulta;
+    }
+
+    public void setDataFimConsulta(LocalDateTime dataFimConsulta) {
+        this.dataFimConsulta = dataFimConsulta;
+    }
+
+
+    public EnumEspecialidade getEspecialidade() {
+        return especialidade;
+    }
+
+    public void setEspecialidade(EnumEspecialidade especialidade) {
+        this.especialidade = especialidade;
     }
 
     public EnumStatus getStatus() {

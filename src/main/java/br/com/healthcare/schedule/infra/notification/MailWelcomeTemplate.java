@@ -31,7 +31,7 @@ public class MailWelcomeTemplate {
                             <p>Explore nossos serviços e dê passos em direção a uma saúde melhor.</p>
                             <footer>
                                 <p>Atenciosamente,</p>
-                                <p>Equipe de Suporte da HealthCare</p>
+                                <p>Equipe HealthCare</p>
                             </footer>
                         </div>
                     </body>

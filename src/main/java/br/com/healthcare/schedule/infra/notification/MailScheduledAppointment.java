@@ -33,7 +33,7 @@ public class MailScheduledAppointment {
                             <p>Por favor, chegue com 10 minutos de antecedência.</p>
                             <footer>
                                 <p>Atenciosamente,</p>
-                                <p>Equipe de Suporte da HealthCare</p>
+                                <p>Equipe HealthCare</p>
                             </footer>
                         </div>
                     </body>

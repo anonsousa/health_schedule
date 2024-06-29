@@ -8,6 +8,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Async
 @Service
 public class MailSenderService {
@@ -40,11 +43,15 @@ public class MailSenderService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(message, "utf-8");
 
-        String htmlMessage = mailScheduledAppointment.buildAppointmentNotificationEmail(user, medico, dataConsulta);
+        LocalDateTime data = LocalDateTime.parse(dataConsulta);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+        String dataFormatted = data.format(formatter);
+
+        String htmlMessage = mailScheduledAppointment.buildAppointmentNotificationEmail(user, medico, dataFormatted);
 
         messageHelper.setFrom("no-reply@healthcare.com");
         messageHelper.setTo(to);
-        messageHelper.setSubject("Consulta Agendada: " + id);
+        messageHelper.setSubject(String.format("Consulta de id: %s agendada com sucesso!", id));
         messageHelper.setText(htmlMessage, true);
 
         mailSender.send(message);
