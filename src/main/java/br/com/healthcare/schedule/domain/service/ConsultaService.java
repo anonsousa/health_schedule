@@ -10,10 +10,13 @@ import br.com.healthcare.schedule.domain.repositories.ConsultaRepository;
 import br.com.healthcare.schedule.domain.repositories.MedicoRepository;
 import br.com.healthcare.schedule.domain.repositories.PacienteRepository;
 import br.com.healthcare.schedule.domain.validations.ScheduleValidation;
+import br.com.healthcare.schedule.infra.exceptions.InvalidRequestException;
 import br.com.healthcare.schedule.infra.exceptions.NotFoundException;
 import br.com.healthcare.schedule.infra.notification.MailSenderService;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,50 +40,62 @@ public class ConsultaService {
     private ScheduleValidation scheduleValidation;
 
     @Transactional
-    public ConsultaReturnDto createConsulta(ConsultaAddDto consultaAddDto){
+    public ConsultaReturnDto createConsulta(ConsultaAddDto consultaAddDto) {
+
 
         var schedule = scheduleValidation.isScheduleValid(consultaAddDto.dataConsulta(), consultaAddDto.dataConsulta().plusHours(1));
+        var pacienteFreeSchedule = pacienteRepository.existsConsultaAgendadaByPacienteEHorario(
+                consultaAddDto.idPaciente(),
+                consultaAddDto.dataConsulta(),
+                consultaAddDto.dataConsulta().plusHours(1));
 
-        if (schedule){
+        if (!pacienteFreeSchedule) {
 
-            List<MedicoEntity> medicoEntityList = medicoRepository.findMedicosDisponiveis(consultaAddDto.especialidade(),
-                    consultaAddDto.dataConsulta(),
-                    consultaAddDto.dataConsulta().plusHours(1));
+            if (schedule) {
 
-            if (!medicoEntityList.isEmpty()){
-                var medico = medicoEntityList.getFirst();
+                List<MedicoEntity> medicoEntityList = medicoRepository.findMedicosDisponiveis(consultaAddDto.especialidade(),
+                        consultaAddDto.dataConsulta(),
+                        consultaAddDto.dataConsulta().plusHours(1));
 
-                PacienteEntity paciente = pacienteRepository.findById(consultaAddDto.idPaciente()).orElseThrow(() -> new NotFoundException("Paciente nao encontrado"));
+                if (!medicoEntityList.isEmpty()) {
+                    var medico = medicoEntityList.getFirst();
 
-                var consulta = new ConsultaEntity();
-                consulta.setMedico(medico);
-                consulta.setPaciente(paciente);
-                consulta.setEspecialidade(consultaAddDto.especialidade());
-                consulta.setDataInicioConsulta(consultaAddDto.dataConsulta());
-                consulta.setDataFimConsulta(consultaAddDto.dataConsulta().plusHours(1));
-                consulta.setStatus(EnumStatus.AGENDADA);
+                    PacienteEntity paciente = pacienteRepository.findById(consultaAddDto.idPaciente()).orElseThrow(() -> new NotFoundException("Paciente nao encontrado"));
 
-                consultaRepository.save(consulta);
+                    var consulta = new ConsultaEntity();
+                    consulta.setMedico(medico);
+                    consulta.setPaciente(paciente);
+                    consulta.setEspecialidade(consultaAddDto.especialidade());
+                    consulta.setDataInicioConsulta(consultaAddDto.dataConsulta());
+                    consulta.setDataFimConsulta(consultaAddDto.dataConsulta().plusHours(1));
+                    consulta.setStatus(EnumStatus.AGENDADA);
 
-                try {
-                    mailSender.sendScheduledAppointment(consulta.getIdConsulta(),
-                            paciente.getEmail(),
-                            paciente.getNome(),
-                            medico.getNome(),
-                            String.valueOf(consulta.getDataInicioConsulta()));
-                } catch (MessagingException e){
-                    throw new RuntimeException("Failed to send message: "+ e.getMessage(), e);
+                    consultaRepository.save(consulta);
+
+                    try {
+                        mailSender.sendScheduledAppointment(consulta.getIdConsulta(),
+                                paciente.getEmail(),
+                                paciente.getNome(),
+                                medico.getNome(),
+                                String.valueOf(consulta.getDataInicioConsulta()));
+                    } catch (MessagingException e) {
+                        throw new RuntimeException("Failed to send message: " + e.getMessage(), e);
+                    }
+
+                    return new ConsultaReturnDto(consulta);
+
+                } else {
+                    throw new NotFoundException(String.format("Nao temos medico com a especialidade %s para a data solicitada!", consultaAddDto.especialidade()));
                 }
-
-                return new ConsultaReturnDto(consulta);
-
             } else {
-                throw new NotFoundException(String.format("Nao temos medico com a especialidade %s para a data solicitada!", consultaAddDto.especialidade()));
+                throw new InvalidRequestException("Data da consulta invalida");
             }
         } else {
-            throw new NotFoundException("Data da consulta invalida!");
+            throw new InvalidRequestException("Paciente ja tem consulta no horario!");
         }
     }
+
+
 
     @Transactional
     public ConsultaReturnDto finishConsulta(Long id){
@@ -88,9 +103,13 @@ public class ConsultaService {
         var consulta = consultaRepository.findById(id);
 
         if (consulta.isPresent()){
-            ConsultaEntity consultaEntity = consulta.get();
-            consultaEntity.setStatus(EnumStatus.REALIZADA);
-            return new ConsultaReturnDto(consultaEntity);
+            if (consulta.get().getStatus() == EnumStatus.AGENDADA){
+                ConsultaEntity consultaEntity = consulta.get();
+                consultaEntity.setStatus(EnumStatus.REALIZADA);
+                return new ConsultaReturnDto(consultaEntity);
+            } else {
+                throw new InvalidRequestException("Consulta ja foi finalizada!");
+            }
         } else {
             throw new NotFoundException("Consulta nao encontrada!");
         }
@@ -102,12 +121,32 @@ public class ConsultaService {
         var consulta = consultaRepository.findById(id);
 
         if (consulta.isPresent()){
-            ConsultaEntity consultaEntity = consulta.get();
-            consultaEntity.setStatus(EnumStatus.DESMARCADA);
-            return new ConsultaReturnDto(consultaEntity);
+            if (consulta.get().getStatus() == EnumStatus.AGENDADA){
+                ConsultaEntity consultaEntity = consulta.get();
+                consultaEntity.setStatus(EnumStatus.DESMARCADA);
+                return new ConsultaReturnDto(consultaEntity);
+            } else {
+                throw new InvalidRequestException("Consulta ja foi finalizada!");
+            }
         } else {
             throw new NotFoundException("Consulta nao encontrada!");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ConsultaReturnDto> findAllConsultasByYearAndMonth(int ano, int mes, Pageable pageable) {
+        Page<ConsultaEntity> consultaPage = consultaRepository.findConsultasByMesEAno(ano, mes, pageable);
+        return consultaPage.map(ConsultaReturnDto::new);
+    }
+
+    @Transactional(readOnly = true)
+    public ConsultaReturnDto findConsultaById(Long id){
+        var consulta = consultaRepository.findById(id);
+
+        if (consulta.isPresent()){
+            return new ConsultaReturnDto(consulta.get());
+        }
+        throw new NotFoundException("Consulta nao encontrada!");
     }
 
 

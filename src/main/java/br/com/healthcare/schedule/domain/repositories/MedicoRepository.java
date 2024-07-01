@@ -26,4 +26,6 @@ public interface MedicoRepository extends JpaRepository<MedicoEntity, Long> {
     List<MedicoEntity> findMedicosDisponiveis(@Param("especialidade") EnumEspecialidade especialidade,
                                               @Param("dataInicioConsulta") LocalDateTime dataInicioConsulta,
                                               @Param("dataFimConsulta") LocalDateTime dataFimConsulta);
+
+
 }
